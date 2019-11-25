@@ -81,6 +81,7 @@ public class HelloWorldController {
 				new UsernamePasswordAuthenticationToken(u.getUid(), u.getPassword());
 		try{
 		 authenticationAfter = authenticationManager.authenticate(unamePasswdAuthTokenbefore);
+		 log.info("before:" + unamePasswdAuthTokenbefore + " after:" + authenticationAfter);
 		}catch(Exception e){
 			throw new Exception("Unsccessful Authentication", e);
 		}

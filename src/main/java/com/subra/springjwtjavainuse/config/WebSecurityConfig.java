@@ -11,12 +11,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import com.subra.springjwtjavainuse.model.LoginCredential;
@@ -28,7 +30,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	UserDetailsService bridgeBetweenService;
 	
-
+	@Autowired
+	AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	@Override //2nd way works-2
 	protected void configure(AuthenticationManagerBuilder auth)	throws Exception { //AuthenticationManager bean is prepared internally
@@ -66,6 +69,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.formLogin().loginPage("/login").permitAll()
 		.failureUrl("/error-login").permitAll()
 		.defaultSuccessUrl("/home");
+		//.and()
+		//.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).accessDeniedPage("/login").and() cannot coexist with .failureUrl("/error-login")
+		//.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);	
 
 	}
 	
