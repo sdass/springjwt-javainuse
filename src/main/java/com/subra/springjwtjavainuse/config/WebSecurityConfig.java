@@ -37,8 +37,37 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	
+	/*works -1
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		//disable CSRF
+		http.csrf().disable()
+		// dont authenticate /authenticate endpoint
+		.authorizeRequests().antMatchers("/authenticate").permitAll()
+		.and().authorizeRequests().antMatchers("/index").permitAll()
+		.and().authorizeRequests().antMatchers("/login").permitAll()
+		//all other request authenticate
+		.anyRequest().authenticated().and()
+		.formLogin().and()
+		.httpBasic();
+	}	
+	*/
 	
-	
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		//disable CSRF
+		http.csrf().disable()
+		// dont authenticate /authenticate endpoint
+		.authorizeRequests().antMatchers("/authenticate").permitAll()
+		.and().authorizeRequests().antMatchers("/index").permitAll()
+		//.and().authorizeRequests().antMatchers("/login").permitAll()
+		//all other request authenticate
+		.anyRequest().authenticated().and()
+		.formLogin().loginPage("/login").permitAll()
+		.failureUrl("/error-login").permitAll()
+		.defaultSuccessUrl("/home");
+
+	}
 	
 	/*works-1
 	@Bean
@@ -66,25 +95,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 */
 
-
-
-
 	@Bean
 	PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
 
 
-
-
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		//disable CSRF
-		http.csrf().disable()
-		// dont authenticate /authenticate endpoint
-		.authorizeRequests().antMatchers("/authenticate").permitAll()
-		//all other request authenticate
-		.anyRequest().authenticated();
-	}
 }

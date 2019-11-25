@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.subra.springjwtjavainuse.config.JwtTokenUtil;
 import com.subra.springjwtjavainuse.model.LoginCredential;
@@ -28,6 +29,37 @@ public class HelloWorldController {
 		log.info("in /hello url");
 		return "Hello World";
 	}
+	
+	@RequestMapping({ "/index" })
+	public String indexUrl() {
+		log.info("in /index url");
+		return "index endpoint ";
+	}
+	
+	 @RequestMapping("/login")  
+	    public ModelAndView login() {  
+		 	ModelAndView mv = new ModelAndView("login");
+		 	mv.addObject("test", "found");
+	        return mv;  
+	    } 
+	 
+	 @RequestMapping("/home")  
+	    public ModelAndView home() {  
+		 log.info("You are in home page");
+		 	ModelAndView mv = new ModelAndView("home");
+		 	mv.addObject("test", "found");
+	        return mv;  
+	    } 
+	 
+	 
+	 @RequestMapping("/error-login")  
+	    public ModelAndView errrlogin() {  
+		 	ModelAndView mv = new ModelAndView("login");
+		 	log.info("in erro-login...");
+		 	mv.addObject("test", "found");
+		 	mv.addObject("loginError", true);
+	        return mv;  
+	    } 	 
 	
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> loginORauthenticate(@RequestBody LoginCredential udata) throws Exception{
