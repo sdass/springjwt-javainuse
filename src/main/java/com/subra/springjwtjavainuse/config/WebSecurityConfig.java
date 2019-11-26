@@ -1,6 +1,9 @@
 package com.subra.springjwtjavainuse.config;
 
+import javax.servlet.Filter;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +22,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.subra.springjwtjavainuse.model.LoginCredential;
 
@@ -32,6 +37,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	AuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	
+	@Autowired
+	@Qualifier("JwtrequestFilter")
+	OncePerRequestFilter jwtrequestFilter;
+	
 
 	@Override //2nd way works-2
 	protected void configure(AuthenticationManagerBuilder auth)	throws Exception { //AuthenticationManager bean is prepared internally
@@ -39,6 +49,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		//auth.userDetailsService(bridgeBetweenService).passwordEncoder(NoOpPasswordEncoder.getInstance()); plain works
 	}
 
+	@Override //34d way for filter JWT
+	protected void configure(HttpSecurity http) throws Exception {
+		//stack-1 configure
+		//disable CSRF
+		http.csrf().disable()
+		// dont authenticate /authenticate endpoint
+		.authorizeRequests().antMatchers("/authenticate").permitAll()
+		.and().authorizeRequests().antMatchers("/index").permitAll()		
+		//all other request authenticate
+		.anyRequest().authenticated() //using javascript ajax request to in @RequestBody		
+		.and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
+		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);	
+
+		//stack-2 configure
+		// Add a filter to validate the tokens with every request
+		http.addFilterBefore(jwtrequestFilter, UsernamePasswordAuthenticationFilter.class);
+	}
 	
 	/*works -1
 	@Override
@@ -56,6 +83,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}	
 	*/
 	
+
+	/* works-2
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		//disable CSRF
@@ -74,6 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		//.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);	
 
 	}
+	*/
 	
 	/*works-1
 	@Bean

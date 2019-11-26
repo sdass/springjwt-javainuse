@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.subra.springjwtjavainuse.config.JwtTokenUtil;
 import com.subra.springjwtjavainuse.model.LoginCredential;
+import com.subra.springjwtjavainuse.service.BridgeBetweenService;
 
 @RestController
 public class HelloWorldController {
@@ -23,6 +26,12 @@ public class HelloWorldController {
 	private Logger log = LoggerFactory.getLogger(HelloWorldController.class);
 	@Autowired
 	AuthenticationManager authenticationManager;
+	
+	@Autowired
+	JwtTokenUtil jwtTokenUtil;
+	
+	@Autowired
+	UserDetailsService bridgeBetweenService;
 	
 	@RequestMapping({ "/hello" })
 	public String firstPage() {
@@ -68,7 +77,11 @@ public class HelloWorldController {
 		
 	Authentication authentication =	authenticate(udata);
 	log.info("---does it work? " + authentication.getPrincipal().toString());
-	 ResponseEntity<String> resp = new ResponseEntity<String>("ThisIsTest111",HttpStatus.OK);
+	//at this point authenitcation successful
+	UserDetails userDetails = bridgeBetweenService.loadUserByUsername(udata.getUid());
+	String jWTtoken = jwtTokenUtil.generateToken(userDetails);
+	 //ResponseEntity<String> resp = new ResponseEntity<String>("ThisIsTest111",HttpStatus.OK);
+	ResponseEntity<String> resp = new ResponseEntity<String>(jWTtoken,HttpStatus.OK);
 		return resp;
 	}
 	

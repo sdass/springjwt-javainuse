@@ -10,15 +10,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
+//@Primary
+@Component("JwtrequestFilter")
 public class JWTrequestFilter extends OncePerRequestFilter {
 		
 	@Autowired private UserDetailsService bridgeBetweenService;
@@ -52,10 +56,16 @@ public class JWTrequestFilter extends OncePerRequestFilter {
 			if(jwtTokenutil.validateToken(reqAuthTokeninHeader, userdetails)){ 
 				//1. passed: token-username found in database
 				//now authenticate using password and after that get Roles
-				//this is 2nd round. So user already is veryfied by posting on /login url. token valid so user spring security populating 
+				//this is 2nd round. So user already is veryfied by posting on /login url. token valid. 
+				//So user spring security manually populating 
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = 
 						new UsernamePasswordAuthenticationToken(userdetails, null, userdetails.getAuthorities()); //user came with get 2nd time. no passsword
 				usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); //???!!??
+				
+				// After setting the Authentication in the context, we specify
+				// that the current user is authenticated. So it passes the
+				// Spring Security Configurations successfully.
+				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); //???!!!!???
 						
 			}
 			
